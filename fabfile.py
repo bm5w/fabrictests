@@ -34,7 +34,7 @@ def provision_instance(wait_for_running=False, timeout=60, interval=2):
     timeout_val = int(timeout)
     conn = get_ec2_connection()
     instance_type = 't1.micro'
-    key_name = 'awskeypair'
+    key_name = 'pk-aws'
     security_group = 'ssh-access'
     image_id = 'ami-810a2fb1'
 
@@ -166,8 +166,9 @@ def terminate_instance(timeout=60, interval=2):
         print "Instance {} is {}".format(selected.id, selected.state)
         selected.update()
 
-### not working
+
 def _nginx_config():
+    os.system('cp simple_nginx_config_template nginx_config/simple_nginx_config')
     re = "s/xxxx/{}/g".format(env.active_instance.public_dns_name)
     complete = 'sed -i -e {} nginx_config/simple_nginx_config'.format(re)
     os.system(complete)
@@ -186,10 +187,6 @@ def _deploy():
     sudo('apt-get install supervisor')
     sudo('mv upload/supervisord.conf supervisord.conf')
     run('supervisord')
-
-    # sudo('mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default.orig')
-    # sudo('mv upload/simple_nginx_config /etc/nginx/sites-available/default')
-
 
 def deploy():
     run_command_on_selected_server(_deploy)
